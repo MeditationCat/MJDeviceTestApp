@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:id="@+id/relativeLayout">
+
+            <Button
+                android:id="@+id/gsensor_calibrate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/GSensor_calibrate"
+                android:textSize="25dip"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true" />
+
+            <TextView
+                android:id="@+id/gsensor_tv_data"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:textSize="30sp"
+                android:layout_below="@+id/gsensor_calibrate" />
+        </RelativeLayout>
+
+        <ImageView
+            android:id="@+id/gsensor_iv_img"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@drawable/error"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="50dp"
+            android:layout_above="@+id/gsensor_tv_info" />
+
+        <TextView
+            android:id="@+id/gsensor_tv_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/GSensor_info"
+            android:textSize="28sp"
+            android:singleLine="false"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="false"
+            android:gravity="left|center"
+            android:layout_above="@+id/linearLayout" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_alignParentBottom="true"
+            android:id="@+id/linearLayout">
+
+            <Button
+                android:id="@+id/gsensor_bt_ok"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:text="@string/Success"
+                android:textSize="60sp" />
+
+            <Button
+                android:id="@+id/gsensor_bt_failed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:text="@string/Failed"
+                android:textSize="60sp" />
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</LinearLayout>

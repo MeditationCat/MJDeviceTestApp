@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.zhi_tech.mjdevicetestapp">
+
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.READ_SETTINGS" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.ACCESS_BLUETOOTH_SHARE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <uses-feature android:required="true" android:name="android.hardware.usb.host" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity android:name=".MJDeviceTestApp"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+            </intent-filter>
+            <meta-data android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+                android:resource="@xml/device_filter" />
+
+        </activity>
+
+        <service
+            android:name="com.zhi_tech.magiceyessdk.MagicEyesService"
+            android:enabled="true"
+            android:exported="true"
+            android:process=":remote">
+        </service>
+
+        <!-- AutoTest -->
+        <activity
+            android:name=".AutoTest"
+            android:label="@string/AutoTest"
+            android:screenOrientation="portrait" />
+
+        <!-- Gsensor -->
+        <activity
+            android:name=".sensor.GSensor"
+            android:label="@string/GSensor"
+            android:screenOrientation="portrait" />
+
+        <!-- GyRoscopeSensor -->
+        <activity
+            android:name=".sensor.GyRoscopeSensor"
+            android:label="@string/gyroscopesensor_name"
+            android:screenOrientation="portrait" />
+        <!-- Msensor -->
+        <activity
+            android:name=".sensor.MSensor"
+            android:label="@string/MSensor"
+            android:screenOrientation="portrait" />
+
+        <!-- Lsensor -->
+        <activity
+            android:name=".sensor.LSensor"
+            android:label="@string/LSensor"
+            android:screenOrientation="portrait" />
+
+        <!-- Psensor -->
+        <activity
+            android:name=".sensor.PSensor"
+            android:label="@string/psensor_app_name"
+            android:screenOrientation="portrait" />
+
+        <!-- Tsensor -->
+        <activity
+            android:name=".sensor.TSensor"
+            android:label="@string/tsensor_app_name"
+            android:screenOrientation="portrait" />
+
+        <!-- KeyCode -->
+        <activity
+            android:name=".KeyCode"
+            android:label="@string/KeyCode"
+            android:screenOrientation="portrait" />
+
+        <!-- Report -->
+        <activity
+            android:name=".Report"
+            android:label="@string/Report"
+            android:screenOrientation="portrait" />
+
+
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:parentActivityName=".MJDeviceTestApp">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.zhi_tech.mjdevicetestapp.MJDeviceTestApp" />
+        </activity>
+    </application>
+
+</manifest>
