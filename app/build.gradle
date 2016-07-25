@@ -8,8 +8,8 @@ android {
         applicationId "com.zhi_tech.mjdevicetestapp"
         minSdkVersion 15
         targetSdkVersion 24
-        versionCode 6
-        versionName "2.4"
+        versionCode 30
+        versionName "3.0.0725"
     }
     buildTypes {
         release {

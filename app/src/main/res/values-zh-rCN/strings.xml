@@ -113,8 +113,13 @@
     <string name="pref_title_mode">开启工厂测试模式</string>
     <string name="pref_description_mode">工厂模式仅用于工厂测试</string>
     <string name="pref_title_auto_test">开启自动测试模式</string>
-    <string name="pref_description_auto_test">自动测试模式用于整机测试</string>
+    <string name="pref_description_auto_test">自动测试模式开启时，程序启动时会自动次检查版本号，蓝牙MAC地址，序列号</string>
     <string name="pref_title_set_test_timeout">单项测试超时时间</string>
+    <!-- Version settings -->
+    <string name="pref_header_version_setting">目标版本设置</string>
+    <string name="pref_title_version_check_stm32">STM32版本</string>
+    <string name="pref_title_version_check_ble">BLE版本</string>
+    <string name="pref_title_version_check_63813">63813版本</string>
     <!-- Sensor settings -->
     <string name="pref_header_sensor_setting">传感测试量程设置</string>
     <string name="pref_title_accel_full_scale_select">重力加速传感量程范围[2,16]g</string>

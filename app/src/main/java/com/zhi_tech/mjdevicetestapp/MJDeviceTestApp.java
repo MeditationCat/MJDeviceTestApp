@@ -63,7 +63,9 @@ public class MJDeviceTestApp extends MagicEyesActivity implements OnItemClickLis
     private Button mBtCheckSN;
     private Button mBleCy7c63813;
 
-    private TextView textViewDeviceInfo, textViewPacket, textViewVersion, textViewBleAddr, textViewSN, textViewUsbStorageInfo;
+    private TextView textViewDeviceInfo, textViewPacket,
+            textViewVersionBLE, textViewVersion63813, textViewVersionStm32, textViewJoySickState,
+            textViewBleAddr, textViewSN, textViewUsbStorageInfo;
 
     public static byte[] result; //0 default; 1,success; 2,fail; 3,notest
     private boolean mCheckDataSuccess;
@@ -75,6 +77,9 @@ public class MJDeviceTestApp extends MagicEyesActivity implements OnItemClickLis
     public static boolean IsFactoryMode = false;
     public static boolean AutoTestMode = false;
     public static int ItemTestTimeout = 120;
+    public static int VersionCheckStm32 = 6;
+    public static int VersionCheckBLE = 27;
+    public static int VersionCheck63813 = 3;
     public static int Accel_FullScale_Range = 3; // g
     public static float Gyro_FullScale_Range = 300.0f; // o/s
     public static int Proximity_Threshold_Approach = 820; //
@@ -87,6 +92,7 @@ public class MJDeviceTestApp extends MagicEyesActivity implements OnItemClickLis
 
     @Override
     public void OnServiceConnectedHandler(ComponentName componentName, IBinder iBinder) {
+        super.OnServiceConnectedHandler(componentName, iBinder);
         DeviceFilter deviceFilter = null;
         try {
             deviceFilter = UsbDeviceFilter.ParseDeviceFilterFromResourceId(this, R.xml.device_filter);
@@ -96,7 +102,9 @@ public class MJDeviceTestApp extends MagicEyesActivity implements OnItemClickLis
         }
         Log.d(TAG, String.format(Locale.US, "DeviceFilter[vid:%d, pid:%d]", deviceFilter.mVendorId, deviceFilter.mProductId));
         SetDeviceFilter(deviceFilter.mVendorId, deviceFilter.mProductId);
-        SetMainActivyClassName(this.getClass().getName());
+        SetBulkTransferTimeout(1000);
+        SetReceiveDataGapTime(50);
+        SetMainActivityClassName(this.getClass().getName());
         ConnectToDevice();
         SendCommand(Utils.CMD_CHECK_VERSION);
 
@@ -119,7 +127,7 @@ public class MJDeviceTestApp extends MagicEyesActivity implements OnItemClickLis
 
     @Override
     public void OnServiceDisconnectedHandler(ComponentName componentName) {
-        //
+        super.OnServiceDisconnectedHandler(componentName);
     }
 
     private Handler handler = new Handler();
@@ -127,7 +135,6 @@ public class MJDeviceTestApp extends MagicEyesActivity implements OnItemClickLis
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, Thread.currentThread().getStackTrace()[2].getMethodName());
-        this.startService(new Intent(this, MagicEyesService.class));
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_ACTION_BAR);
         setContentView(R.layout.activity_main);
@@ -158,7 +165,10 @@ public class MJDeviceTestApp extends MagicEyesActivity implements OnItemClickLis
 
         textViewDeviceInfo = (TextView) findViewById(R.id.textViewDeviceInfo);
         textViewPacket = (TextView) findViewById(R.id.textViewPacket);
-        textViewVersion = (TextView) findViewById(R.id.textViewVersion);
+        textViewVersionBLE = (TextView) findViewById(R.id.textViewVersionBLE);
+        textViewVersion63813 = (TextView) findViewById(R.id.textViewVersion63813);
+        textViewVersionStm32 = (TextView) findViewById(R.id.textViewVersionStm32);
+        textViewJoySickState = (TextView) findViewById(R.id.textViewJoySickState);
         textViewBleAddr = (TextView) findViewById(R.id.textViewBleAddr);
         textViewSN = (TextView) findViewById(R.id.textViewSN);
         textViewUsbStorageInfo = (TextView) findViewById(R.id.textViewUsbStorageInfo);
@@ -218,6 +228,15 @@ public class MJDeviceTestApp extends MagicEyesActivity implements OnItemClickLis
         //item test timeout
         String string = sharedPreferences.getString("item_test_timeout_list", "120");
         ItemTestTimeout = Integer.valueOf(string);
+        //version check stm32
+        string = sharedPreferences.getString("version_check_stm32", "6");
+        VersionCheckStm32 = Integer.valueOf(string);
+        //version check BLE
+        string = sharedPreferences.getString("version_check_ble", "27");
+        VersionCheckBLE = Integer.valueOf(string);
+        //version check 63813
+        string = sharedPreferences.getString("version_check_63813", "3");
+        VersionCheck63813 = Integer.valueOf(string);
         // accel full scale range
         string = sharedPreferences.getString("accel_full_scale_select", "3");
         Accel_FullScale_Range = Integer.valueOf(string);
@@ -244,6 +263,9 @@ public class MJDeviceTestApp extends MagicEyesActivity implements OnItemClickLis
                         "IsFactoryMode=%b%n" +
                         "AutoTestMode=%b%n" +
                         "ItemTestTimeout=%ds%n" +
+                        "VersionCheckStm32=%d%n" +
+                        "VersionCheckBLE=%d%n" +
+                        "VersionCheck63813=%d%n" +
                         "Accel_FullScale_Range=%dg%n" +
                         "Gyro_FullScale_Range=%fdps%n" +
                         "Proximity_Threshold_Approach=%d%n" +
@@ -254,6 +276,9 @@ public class MJDeviceTestApp extends MagicEyesActivity implements OnItemClickLis
                         IsFactoryMode,
                         AutoTestMode,
                         ItemTestTimeout,
+                        VersionCheckStm32,
+                        VersionCheckBLE,
+                        VersionCheck63813,
                         Accel_FullScale_Range,
                         Gyro_FullScale_Range,
                         Proximity_Threshold_Approach,
@@ -302,10 +327,13 @@ public class MJDeviceTestApp extends MagicEyesActivity implements OnItemClickLis
         textViewPacket.setText(String.format("%s: %s  %s: %s",
                 getString(R.string.packetdata_header), getString(R.string.device_unknown),
                 getString(R.string.packetdata_timestamp),getString(R.string.device_unknown)));
-        textViewVersion.setText(String.format("%s: %s%n%s: %s%n%s: %s%n%s: %s",
-                getString(R.string.device_version_ble), getString(R.string.device_unknown),
-                getString(R.string.device_version_63813), getString(R.string.device_unknown),
-                getString(R.string.device_version_stm32), getString(R.string.device_unknown),
+        textViewVersionBLE.setText(String.format("%s: %s",
+                getString(R.string.device_version_ble), getString(R.string.device_unknown)));
+        textViewVersion63813.setText(String.format("%s: %s",
+                getString(R.string.device_version_63813), getString(R.string.device_unknown)));
+        textViewVersionStm32.setText(String.format("%s: %s",
+                getString(R.string.device_version_stm32), getString(R.string.device_unknown)));
+        textViewJoySickState.setText(String.format("%s: %s",
                 getString(R.string.device_ble_state), getString(R.string.device_unknown)));
         textViewBleAddr.setText(String.format(Locale.US, "%s: %s",
                 getString(R.string.device_ble_mac_addr), getString(R.string.device_unknown)));
@@ -653,6 +681,7 @@ public class MJDeviceTestApp extends MagicEyesActivity implements OnItemClickLis
 
     @Override
     protected void OnCommandResultChangedHandler(final int cmd, final byte[] data, final int length) {
+        Utils.dLog(TAG, String.format(Locale.US, "cmd:%#04x", cmd));
         handler.post(new Runnable() {
             @Override
             public void run() {
@@ -693,18 +722,36 @@ public class MJDeviceTestApp extends MagicEyesActivity implements OnItemClickLis
                         break;
 
                     case 0xB2: //check version result send 0xB1 feedback
-                        if (data[0] == 0 || data[1] == 0 || data[2] == 0) {
-                            mCheckDataSuccess = false;
-                            textViewVersion.setTextColor(Color.RED);
+                        if (data[0] == VersionCheckBLE) {
+                            textViewVersionBLE.setTextColor(Color.GREEN);
                         } else {
-                            mCheckDataSuccess = true;
-                            textViewVersion.setTextColor(Color.GREEN);
-                            mBtCheckVersion.setTextColor(Color.GREEN);
+                            textViewVersionBLE.setTextColor(Color.RED);
                         }
-                        textViewVersion.setText(String.format(Locale.US,"%s: %d%n%s: %d%n%s: %d%n%s: %d",
-                                getString(R.string.device_version_ble), data[0],
-                                getString(R.string.device_version_63813), data[1],
-                                getString(R.string.device_version_stm32), data[2],
+                        if (data[1] == VersionCheck63813) {
+                            textViewVersion63813.setTextColor(Color.GREEN);
+                        } else {
+                            textViewVersion63813.setTextColor(Color.RED);
+                        }
+                        if (data[2] == VersionCheckStm32) {
+                            textViewVersionStm32.setTextColor(Color.GREEN);
+                        } else {
+                            textViewVersionStm32.setTextColor(Color.RED);
+                        }
+
+                        if (data[0] == VersionCheckBLE && data[1] == VersionCheck63813 && data[2] == VersionCheckStm32) {
+                            mCheckDataSuccess = true;
+                            mBtCheckVersion.setTextColor(Color.GREEN);
+                        } else {
+                            mCheckDataSuccess = false;
+                            mBtCheckVersion.setTextColor(Color.RED);
+                        }
+                        textViewVersionBLE.setText(String.format(Locale.US,"%s: %d",
+                                getString(R.string.device_version_ble), data[0]));
+                        textViewVersion63813.setText(String.format(Locale.US,"%s: %d",
+                                getString(R.string.device_version_63813), data[1]));
+                        textViewVersionStm32.setText(String.format(Locale.US,"%s: %d",
+                                getString(R.string.device_version_stm32), data[2]));
+                        textViewJoySickState.setText(String.format(Locale.US,"%s: %d",
                                 getString(R.string.device_ble_state), data[3]));
 
                         if (AutoTestMode) {

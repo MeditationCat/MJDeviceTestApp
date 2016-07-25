@@ -54,7 +54,13 @@ public class GSensor extends MagicEyesActivity implements View.OnClickListener {
 
     @Override
     public void OnServiceConnectedHandler(ComponentName componentName, IBinder iBinder) {
+        super.OnServiceConnectedHandler(componentName, iBinder);
         SendCommand(Utils.CMD_RECV_SENSOR_DATA);
+    }
+
+    @Override
+    public void OnServiceDisconnectedHandler(ComponentName componentName) {
+        super.OnServiceDisconnectedHandler(componentName);
     }
 
     private Handler handler = new Handler();

@@ -86,10 +86,10 @@
     <string name="keycode_button_y">ButtonY(Menu/Power)</string>
     <string name="keycode_tp_singleclick">(TP)SingleClick</string>
     <string name="keycode_tp_doubleclick">(TP)DoubleClick</string>
-    <string name="keycode_tp_up">(TP)¡ü</string>
-    <string name="keycode_tp_down">(TP)¡ý</string>
-    <string name="keycode_tp_left">(TP)¡û</string>
-    <string name="keycode_tp_right">(TP)¡ú</string>
+    <string name="keycode_tp_up">(TP)ï¿½ï¿½</string>
+    <string name="keycode_tp_down">(TP)ï¿½ï¿½</string>
+    <string name="keycode_tp_left">(TP)ï¿½ï¿½</string>
+    <string name="keycode_tp_right">(TP)ï¿½ï¿½</string>
     <string name="keycode_joystick_info">Joystick Key Test</string>
     <string name="keycode_touchpad_info">Touchpad Test</string>
     <string name="device_manufacturer">Manufacturer</string>
@@ -115,7 +115,7 @@
     <string name="pref_title_mode">Enable factory mode</string>
     <string name="pref_description_mode">Factory mode could be used for test pcb in factory</string>
     <string name="pref_title_auto_test">Enable Auto Test mode</string>
-    <string name="pref_description_auto_test">Auto test mode could be used for test whole product</string>
+    <string name="pref_description_auto_test">If auto test mode is on, the app will check version, ble address and serial number when it starts. </string>
     <string name="pref_title_set_test_timeout">Set item test timeout</string>
     <string-array name="pref_timeout_list_titles" translatable="false">
         <item>5s</item>
@@ -133,13 +133,18 @@
         <item>60</item>
         <item>120</item>
     </string-array>
+    <!-- Version settings -->
+    <string name="pref_header_version_setting">Version Setting</string>
+    <string name="pref_title_version_check_stm32">STM32 Version</string>
+    <string name="pref_title_version_check_ble">BLE Version</string>
+    <string name="pref_title_version_check_63813">63813 Version</string>
     <!-- Sensor settings -->
     <string name="pref_header_sensor_setting">Sensor Setting</string>
     <string name="pref_title_accel_full_scale_select">Accel Full Scale Select Range[2,16]g</string>
     <string name="pref_title_gyro_full_scale_select">Gyro Full Scale Select Range[250,2000]dps</string>
     <string name="pref_title_proximity_threshold_approach">Proximity Threshold Approach Range[200, 4000]</string>
     <string name="pref_title_light_threshold_approach">Light Threshold Approach Range[10, 2000]</string>
-    <string name="pref_title_temp_range_min">Temperature Range Min[-40, 85]¡æ</string>
-    <string name="pref_title_temp_range_max">Temperature Range Max[-40, 85]¡æ</string>
+    <string name="pref_title_temp_range_min">Temperature Range Min[-40, 85]ï¿½ï¿½</string>
+    <string name="pref_title_temp_range_max">Temperature Range Max[-40, 85]ï¿½ï¿½</string>
     <string name="pref_title_magnetic_yaw_offset">Magnetic Yaw Offset[0, 360]d</string>
 </resources>

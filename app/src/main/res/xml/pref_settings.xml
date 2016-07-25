@@ -24,6 +24,39 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory android:title="@string/pref_header_version_setting">
+        <EditTextPreference
+            android:capitalize="words"
+            android:defaultValue="6"
+            android:inputType="number"
+            android:key="version_check_stm32"
+            android:maxLines="1"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/pref_title_version_check_stm32" />
+
+        <EditTextPreference
+            android:capitalize="words"
+            android:defaultValue="27"
+            android:inputType="number"
+            android:key="version_check_ble"
+            android:maxLines="1"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/pref_title_version_check_ble" />
+
+        <EditTextPreference
+            android:capitalize="words"
+            android:defaultValue="3"
+            android:inputType="number"
+            android:key="version_check_63813"
+            android:maxLines="1"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/pref_title_version_check_63813" />
+
+    </PreferenceCategory>
+
     <PreferenceCategory android:title="@string/pref_header_sensor_setting">
         <EditTextPreference
             android:capitalize="words"

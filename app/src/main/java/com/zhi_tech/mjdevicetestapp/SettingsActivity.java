@@ -56,18 +56,17 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             } else if (preference instanceof EditTextPreference) {
                 if (preference.getKey().equals("accel_full_scale_select")) {
                     ((EditTextPreference) preference).getEditText().setFilters(new InputFilter[]{new InputFilter.LengthFilter(2)});
-                } else if (preference.getKey().equals("gyro_full_scale_select")) {
-                    ((EditTextPreference) preference).getEditText().setFilters(new InputFilter[]{new InputFilter.LengthFilter(4)});
-                } else if (preference.getKey().equals("proximity_threshold_approach")) {
-                    ((EditTextPreference) preference).getEditText().setFilters(new InputFilter[]{new InputFilter.LengthFilter(4)});
-                } else if (preference.getKey().equals("light_threshold_approach")) {
-                    ((EditTextPreference) preference).getEditText().setFilters(new InputFilter[]{new InputFilter.LengthFilter(4)});
-                } else if (preference.getKey().equals("temp_range_min")) {
+                } else if (preference.getKey().equals("version_check_stm32")
+                        || preference.getKey().equals("version_check_ble")
+                        || preference.getKey().equals("version_check_63813")
+                        || preference.getKey().equals("temp_range_min")
+                        || preference.getKey().equals("temp_range_max")
+                        || preference.getKey().equals("magnetic_yaw_offset")) {
                     ((EditTextPreference) preference).getEditText().setFilters(new InputFilter[]{new InputFilter.LengthFilter(3)});
-                } else if (preference.getKey().equals("temp_range_max")) {
-                    ((EditTextPreference) preference).getEditText().setFilters(new InputFilter[]{new InputFilter.LengthFilter(3)});
-                }else if (preference.getKey().equals("magnetic_yaw_offset")) {
-                    ((EditTextPreference) preference).getEditText().setFilters(new InputFilter[]{new InputFilter.LengthFilter(3)});
+                } else if (preference.getKey().equals("gyro_full_scale_select")
+                        || preference.getKey().equals("proximity_threshold_approach")
+                        || preference.getKey().equals("light_threshold_approach")) {
+                    ((EditTextPreference) preference).getEditText().setFilters(new InputFilter[]{new InputFilter.LengthFilter(4)});
                 }
                 preference.setSummary(stringValue);
             } else {
@@ -181,6 +180,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             // updated to reflect the new value, per the Android Design
             // guidelines.
             bindPreferenceSummaryToValue(findPreference("item_test_timeout_list"));
+            bindPreferenceSummaryToValue(findPreference("version_check_stm32"));
+            bindPreferenceSummaryToValue(findPreference("version_check_ble"));
+            bindPreferenceSummaryToValue(findPreference("version_check_63813"));
             bindPreferenceSummaryToValue(findPreference("accel_full_scale_select"));
             bindPreferenceSummaryToValue(findPreference("gyro_full_scale_select"));
             bindPreferenceSummaryToValue(findPreference("proximity_threshold_approach"));

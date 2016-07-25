@@ -27,7 +27,25 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Version"
-                android:id="@+id/textViewVersion"
+                android:id="@+id/textViewVersionBLE"
+                android:textSize="16sp" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Version"
+                android:id="@+id/textViewVersion63813"
+                android:textSize="16sp" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Version"
+                android:id="@+id/textViewVersionStm32"
+                android:textSize="16sp" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="State"
+                android:id="@+id/textViewJoySickState"
                 android:textSize="16sp" />
 
             <TextView

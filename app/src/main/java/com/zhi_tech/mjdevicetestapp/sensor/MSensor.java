@@ -55,7 +55,13 @@ public class MSensor extends MagicEyesActivity {
 
     @Override
     public void OnServiceConnectedHandler(ComponentName componentName, IBinder iBinder) {
+        super.OnServiceConnectedHandler(componentName, iBinder);
         SendCommand(Utils.CMD_RECV_SENSOR_DATA);
+    }
+
+    @Override
+    public void OnServiceDisconnectedHandler(ComponentName componentName) {
+        super.OnServiceDisconnectedHandler(componentName);
     }
 
     private Handler handler = new Handler();
@@ -90,6 +96,7 @@ public class MSensor extends MagicEyesActivity {
                 values[0] = azimuth;
                 values[1] = pitch;
                 values[2] = roll;
+                Log.d(TAG,String.format("azimuth: %d pitch: %d roll:%d", (int) values[0], (int) values[1], (int) values[2]));
 
                 if (Math.abs(values[0] - mDegressQuondam) < 360 / 72) {
                     return;

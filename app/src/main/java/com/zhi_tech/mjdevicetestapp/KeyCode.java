@@ -62,8 +62,14 @@ public class KeyCode extends MagicEyesActivity implements OnClickListener {
 
     @Override
     public void OnServiceConnectedHandler(ComponentName componentName, IBinder iBinder) {
+        super.OnServiceConnectedHandler(componentName, iBinder);
         SendCommand(Utils.CMD_RECV_TP_EVENT);
         SendCommand(Utils.CMD_RECV_TP_EVENT);
+    }
+
+    @Override
+    public void OnServiceDisconnectedHandler(ComponentName componentName) {
+        super.OnServiceDisconnectedHandler(componentName);
     }
 
     @Override
