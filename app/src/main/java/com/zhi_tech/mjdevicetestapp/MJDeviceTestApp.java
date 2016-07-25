@@ -63,7 +63,7 @@ public class MJDeviceTestApp extends MagicEyesActivity implements OnItemClickLis
     private Button mBtCheckSN;
     private Button mBleCy7c63813;
 
-    private TextView textViewDeviceInfo, textViewPacket,
+    private TextView textViewDeviceManufacturer, textViewDeviceProductName, textViewPacket,
             textViewVersionBLE, textViewVersion63813, textViewVersionStm32, textViewJoySickState,
             textViewBleAddr, textViewSN, textViewUsbStorageInfo;
 
@@ -115,11 +115,8 @@ public class MJDeviceTestApp extends MagicEyesActivity implements OnItemClickLis
                 if (info != null) {
                     Pattern pattern = Pattern.compile(",");
                     String[] information = pattern.split(info);
-                    textViewDeviceInfo.setText(String.format("%s: %s%n%s: %s",
-                            getString(R.string.device_manufacturer),
-                            information[0],
-                            getString(R.string.device_productname),
-                            information[1]));
+                    textViewDeviceManufacturer.setText(String.format("%s:%s", getString(R.string.device_manufacturer), information[0]));
+                    textViewDeviceProductName.setText(String.format("%s:%s", getString(R.string.device_productname), information[1]));
                 }
             }
         });
@@ -163,7 +160,8 @@ public class MJDeviceTestApp extends MagicEyesActivity implements OnItemClickLis
         assert mBleCy7c63813 != null;
         mBleCy7c63813.setOnClickListener(this);
 
-        textViewDeviceInfo = (TextView) findViewById(R.id.textViewDeviceInfo);
+        textViewDeviceManufacturer = (TextView) findViewById(R.id.textViewDeviceManufacturer);
+        textViewDeviceProductName = (TextView) findViewById(R.id.textViewDeviceProductName);
         textViewPacket = (TextView) findViewById(R.id.textViewPacket);
         textViewVersionBLE = (TextView) findViewById(R.id.textViewVersionBLE);
         textViewVersion63813 = (TextView) findViewById(R.id.textViewVersion63813);
@@ -322,8 +320,8 @@ public class MJDeviceTestApp extends MagicEyesActivity implements OnItemClickLis
         okFlag = 0x00;
         mBleCy7c63813IsConnected = false;
         result = new byte[AppDefine.DVT_NV_ARRAR_LEN];
-        textViewDeviceInfo.setText(String.format("%s: %s%n%s: %s", getString(R.string.device_manufacturer), getString(R.string.device_unknown),
-                getString(R.string.device_productname), getString(R.string.device_unknown)));
+        textViewDeviceManufacturer.setText(String.format("%s:%s", getString(R.string.device_manufacturer), getString(R.string.device_unknown)));
+        textViewDeviceProductName.setText(String.format("%s:%s", getString(R.string.device_productname), getString(R.string.device_unknown)));
         textViewPacket.setText(String.format("%s: %s  %s: %s",
                 getString(R.string.packetdata_header), getString(R.string.device_unknown),
                 getString(R.string.packetdata_timestamp),getString(R.string.device_unknown)));

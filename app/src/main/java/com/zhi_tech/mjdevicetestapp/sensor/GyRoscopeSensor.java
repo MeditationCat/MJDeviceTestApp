@@ -108,7 +108,7 @@ public class GyRoscopeSensor extends MagicEyesActivity implements View.OnClickLi
                     okFlag |= 0x80;
                 } else {
                     okFlag |= 0x08;
-                }
+                }//*/
             }
         });
     }

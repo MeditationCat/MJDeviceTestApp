@@ -69,6 +69,21 @@ public class GSensor extends MagicEyesActivity implements View.OnClickListener {
         @Override
         public void run() {
             tvdata.setText(String.format(Locale.US,"%s:%nX: %+f%nY: %+f%nZ: %+f%n",getString(R.string.GSensor), mX, mY, mZ));
+            if (Math.abs(mX) < FullScale_Range && Math.abs(mY) < FullScale_Range
+                    && Math.abs(Math.abs(mZ) - Gravity) < FullScale_Range) {
+                okFlag |= 0x01;
+                ivimg.setBackgroundResource(R.drawable.gsensor_z);
+            }
+            if (Math.abs(mX) < FullScale_Range && Math.abs(mZ) < FullScale_Range
+                    && Math.abs(Math.abs(mY) - Gravity) < FullScale_Range) {
+                okFlag |= 0x02;
+                ivimg.setBackgroundResource(mY > 0? R.drawable.gsensor_y : R.drawable.gsensor_2y);
+            }
+            if (Math.abs(mZ) < FullScale_Range && Math.abs(mY) < FullScale_Range
+                    && Math.abs(Math.abs(mX) - Gravity) < FullScale_Range) {
+                okFlag |= 0x04;
+                ivimg.setBackgroundResource(mX > 0? R.drawable.gsensor_x : R.drawable.gsensor_x_2);
+            }
             if (okFlag == 0x07 && !mCheckDataSuccess) {
                 tvdata.setTextColor(Color.GREEN);
                 mBtFailed.setBackgroundColor(Color.GRAY);
@@ -76,13 +91,13 @@ public class GSensor extends MagicEyesActivity implements View.OnClickListener {
                 mCheckDataSuccess = true;
                 SaveToReport();
             }
-            if (Math.abs(mX) > Math.abs(mY) && Math.abs(mX) - OFFSET > Math.abs(mZ)) {
+            /*if (Math.abs(mX) > Math.abs(mY) && Math.abs(mX) - OFFSET > Math.abs(mZ)) {
                 ivimg.setBackgroundResource(mX > 0? R.drawable.gsensor_x : R.drawable.gsensor_x_2);
             } else if (Math.abs(mY) - OFFSET > Math.abs(mX) && Math.abs(mY) - OFFSET > Math.abs(mZ)) {
                 ivimg.setBackgroundResource(mY > 0? R.drawable.gsensor_y : R.drawable.gsensor_2y);
             } else if (Math.abs(mZ) > Math.abs(mX) && Math.abs(mZ) > Math.abs(mY)) {
                 ivimg.setBackgroundResource(R.drawable.gsensor_z);
-            }
+            }*/
         }
     };
 
@@ -92,19 +107,6 @@ public class GSensor extends MagicEyesActivity implements View.OnClickListener {
         mX = values[0] * Gravity / Accl_Sensitivity;
         mY = values[1] * Gravity / Accl_Sensitivity;
         mZ = values[2] * Gravity / Accl_Sensitivity;
-
-        if (Math.abs(mX) < FullScale_Range && Math.abs(mY) < FullScale_Range
-                && Math.abs(Math.abs(mZ) - Gravity) < FullScale_Range) {
-            okFlag |= 0x01;
-        }
-        if (Math.abs(mX) < FullScale_Range && Math.abs(mZ) < FullScale_Range
-                && Math.abs(Math.abs(mY) - Gravity) < FullScale_Range) {
-            okFlag |= 0x02;
-        }
-        if (Math.abs(mZ) < FullScale_Range && Math.abs(mY) < FullScale_Range
-                && Math.abs(Math.abs(mX) - Gravity) < FullScale_Range) {
-            okFlag |= 0x04;
-        }
 
         handler.post(runnable);
     }
