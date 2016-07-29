@@ -2,8 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/MJDeviceTestApp.iml" filepath="$PROJECT_DIR$/MJDeviceTestApp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/MJDeviceTestAppWithSDKsrc.iml" filepath="$PROJECT_DIR$/MJDeviceTestAppWithSDKsrc.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/magiceyessdk/magiceyessdk.iml" filepath="$PROJECT_DIR$/magiceyessdk/magiceyessdk.iml" />
     </modules>
   </component>
 </project>

@@ -1,5 +1,6 @@
 package com.zhi_tech.mjdevicetestapp;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -16,6 +17,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.InputDevice;
@@ -65,7 +69,7 @@ public class MJDeviceTestApp extends MagicEyesActivity implements OnItemClickLis
 
     private TextView textViewDeviceManufacturer, textViewDeviceProductName, textViewPacket,
             textViewVersionBLE, textViewVersion63813, textViewVersionStm32, textViewJoySickState,
-            textViewBleAddr, textViewSN, textViewUsbStorageInfo;
+            textViewBleAddr, textViewSN, textViewUsbStorageInfo, textViewHandShakeStatus;
 
     public static byte[] result; //0 default; 1,success; 2,fail; 3,notest
     private boolean mCheckDataSuccess;
@@ -90,6 +94,10 @@ public class MJDeviceTestApp extends MagicEyesActivity implements OnItemClickLis
 
     private final String TAG = "MJDeviceTestApp";
 
+    private Handler handler = new Handler();
+
+    private final static int WRITE_EXTERNAL_STORAGE_REQUEST_CODE = 1;
+
     @Override
     public void OnServiceConnectedHandler(ComponentName componentName, IBinder iBinder) {
         super.OnServiceConnectedHandler(componentName, iBinder);
@@ -105,6 +113,22 @@ public class MJDeviceTestApp extends MagicEyesActivity implements OnItemClickLis
         SetBulkTransferTimeout(1000);
         SetReceiveDataGapTime(50);
         SetMainActivityClassName(this.getClass().getName());
+        //check WRITE_EXTERNAL_STORAGE permission
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            //request WRITE_EXTERNAL_STORAGE permission
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    WRITE_EXTERNAL_STORAGE_REQUEST_CODE);
+        } else {
+            OnDeviceConnectHandler();
+        }
+    }
+
+    @Override
+    public void OnServiceDisconnectedHandler(ComponentName componentName) {
+        super.OnServiceDisconnectedHandler(componentName);
+    }
+
+    private void OnDeviceConnectHandler() {
         ConnectToDevice();
         SendCommand(Utils.CMD_CHECK_VERSION);
 
@@ -123,11 +147,17 @@ public class MJDeviceTestApp extends MagicEyesActivity implements OnItemClickLis
     }
 
     @Override
-    public void OnServiceDisconnectedHandler(ComponentName componentName) {
-        super.OnServiceDisconnectedHandler(componentName);
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case WRITE_EXTERNAL_STORAGE_REQUEST_CODE:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    OnDeviceConnectHandler();
+                } else {
+                    Toast.makeText(this, "REQUEST WRITE_EXTERNAL_STORAGE PERMISSION FAILED!", Toast.LENGTH_LONG).show();
+                }
+        }
     }
-
-    private Handler handler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -170,6 +200,7 @@ public class MJDeviceTestApp extends MagicEyesActivity implements OnItemClickLis
         textViewBleAddr = (TextView) findViewById(R.id.textViewBleAddr);
         textViewSN = (TextView) findViewById(R.id.textViewSN);
         textViewUsbStorageInfo = (TextView) findViewById(R.id.textViewUsbStorageInfo);
+        textViewHandShakeStatus = (TextView) findViewById(R.id.textViewHandShakeStatus);
 
         if (IsFactoryMode) {
             //mBtAuto.setVisibility(View.GONE);
@@ -220,7 +251,7 @@ public class MJDeviceTestApp extends MagicEyesActivity implements OnItemClickLis
     public void initDefaultSetting() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         //factory mode
-        IsFactoryMode = sharedPreferences.getBoolean("factory_mode_switch", false);
+        IsFactoryMode = sharedPreferences.getBoolean("factory_mode_switch", true);
         //auto test mode
         AutoTestMode = sharedPreferences.getBoolean("auto_test_mode_switch", true);
         //item test timeout
@@ -339,6 +370,8 @@ public class MJDeviceTestApp extends MagicEyesActivity implements OnItemClickLis
                 getString(R.string.device_serial_number), getString(R.string.device_unknown)));
         textViewUsbStorageInfo.setText(String.format(Locale.US, "%s:%s",
                 getString(R.string.usb_storage_info), getString(R.string.device_unknown)));
+        textViewHandShakeStatus.setText(String.format(Locale.US, "%s: %s",
+                getString(R.string.device_hand_shake_status), getString(R.string.device_unknown)));
     }
 
     @Override
@@ -544,9 +577,7 @@ public class MJDeviceTestApp extends MagicEyesActivity implements OnItemClickLis
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            final UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
             Log.d(TAG, Thread.currentThread().getStackTrace()[2].getMethodName() + " mUsbReceiver-->" + action);
-            Log.d(TAG, Thread.currentThread().getStackTrace()[2].getMethodName() + " mUsbReceiver-->" + device);
             if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
             } else if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
             } else if (Utils.ACTION_KILL_SELF.equals(action)) {
@@ -684,6 +715,17 @@ public class MJDeviceTestApp extends MagicEyesActivity implements OnItemClickLis
             @Override
             public void run() {
                 switch (cmd) {
+                    case 0xE0:
+                        if (length > 0 && data[0] == 0x01) {
+                            textViewHandShakeStatus.setText(String.format(Locale.US, "%s:%s",
+                                    getString(R.string.device_hand_shake_status), "true"));
+                            textViewHandShakeStatus.setTextColor(Color.GREEN);
+                        } else {
+                            textViewHandShakeStatus.setText(String.format(Locale.US, "%s:%s",
+                                    getString(R.string.device_hand_shake_status), "false"));
+                            textViewHandShakeStatus.setTextColor(Color.RED);
+                        }
+                        break;
                     case 0xA5: // iap upgrade return result value
                         int upgradeTip = 0;
                         if (data[0] == 1) {

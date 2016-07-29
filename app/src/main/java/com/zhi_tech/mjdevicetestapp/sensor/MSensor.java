@@ -27,6 +27,7 @@ import com.zhi_tech.mjdevicetestapp.MJDeviceTestApp;
 import com.zhi_tech.mjdevicetestapp.R;
 import com.zhi_tech.mjdevicetestapp.UtilTools;
 
+import java.util.Arrays;
 import java.util.Locale;
 
 /**
@@ -52,6 +53,9 @@ public class MSensor extends MagicEyesActivity {
     private float[] mOrientation = new float[3];
     private int[] values = new int[3];
     boolean mCheckDataSuccess = false;
+    private int[] valueFlag = new int[3];
+    private int errorCount = 10;
+    private boolean reportIsSaved;
 
     @Override
     public void OnServiceConnectedHandler(ComponentName componentName, IBinder iBinder) {
@@ -78,6 +82,19 @@ public class MSensor extends MagicEyesActivity {
                 float Mx = data[0];
                 float My = data[1];
                 float Mz = data[2];
+                if (!Arrays.equals(valueFlag, data)) {
+                    System.arraycopy(data, 0, valueFlag, 0, valueFlag.length);
+                } else if (errorCount >= 0) {
+                    if (errorCount == 0) {
+                        mCheckDataSuccess = false;
+                        mOrientText.setTextColor(Color.RED);
+                        mBtFailed.setBackgroundColor(Color.RED);
+                        mBtOk.setBackgroundColor(Color.GRAY);
+                        SaveToReport();
+                    }
+                    errorCount--;
+                }
+
                 mOrientValue.setText(String.format(Locale.US, "%s:%nX: %+f%nY: %+f%nZ: %+f%n", getString(R.string.MSensor), Mx, My, Mz));
                 //Log.d(TAG,String.format(" %s%n:X: %+d Y: %+d Z: %+d ", getString(R.string.MSensor), (int) Mx, (int) My, (int) Mz));
                 float azimuth = (float) (Math.atan2(Mx, My) * (180 / Math.PI));
@@ -98,10 +115,6 @@ public class MSensor extends MagicEyesActivity {
                 values[2] = roll;
                 Log.d(TAG,String.format("azimuth: %d pitch: %d roll:%d", (int) values[0], (int) values[1], (int) values[2]));
 
-                if (Math.abs(values[0] - mDegressQuondam) < 360 / 72) {
-                    return;
-                }
-
                 if (Math.abs(values[0] - Math.abs(mDegressQuondam)) > Magnetic_Yaw_Offset
                         && !mCheckDataSuccess
                         && mDegressQuondam != -1.0f) {
@@ -110,6 +123,10 @@ public class MSensor extends MagicEyesActivity {
                     mBtOk.setBackgroundColor(Color.GREEN);
                     mCheckDataSuccess = true;
                     SaveToReport();
+                }
+
+                if (Math.abs(values[0] - mDegressQuondam) < 360 / 72) {
+                    return;
                 }
 
                 switch ((int) values[0]) {
@@ -267,6 +284,8 @@ public class MSensor extends MagicEyesActivity {
 
         Magnetic_Yaw_Offset = MJDeviceTestApp.Magnetic_Yaw_Offset;
 
+        mCheckDataSuccess =false;
+        reportIsSaved = false;
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -327,6 +346,9 @@ public class MSensor extends MagicEyesActivity {
     };
 
     public void SaveToReport() {
+        if (reportIsSaved) {
+            return;
+        }
         UtilTools.SetPreferences(this, mSp, R.string.msensor_name,
                 mCheckDataSuccess ? AppDefine.DT_SUCCESS : AppDefine.DT_FAILED);
         handler.postDelayed(new Runnable() {

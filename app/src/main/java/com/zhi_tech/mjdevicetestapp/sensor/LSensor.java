@@ -40,6 +40,7 @@ public class LSensor extends MagicEyesActivity {
     boolean mCheckDataSuccess;
     public static int Light_Threshold_Approach = 100; //
     public static int Light_Threshold_Leave = 1200; //
+    private boolean reportIsSaved;
 
     @Override
     public void OnServiceConnectedHandler(ComponentName componentName, IBinder iBinder) {
@@ -98,6 +99,7 @@ public class LSensor extends MagicEyesActivity {
         Light_Threshold_Approach = MJDeviceTestApp.Light_Threshold_Approach;
 
         mCheckDataSuccess = false;
+        reportIsSaved = false;
 
         handler.postDelayed(new Runnable() {
             @Override
@@ -139,6 +141,9 @@ public class LSensor extends MagicEyesActivity {
     };
 
     public void SaveToReport() {
+        if (reportIsSaved) {
+            return;
+        }
         UtilTools.SetPreferences(this, mSp, R.string.lsensor_name,
                 mCheckDataSuccess ? AppDefine.DT_SUCCESS : AppDefine.DT_FAILED);
         handler.postDelayed(new Runnable() {

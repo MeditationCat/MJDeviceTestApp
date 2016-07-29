@@ -35,6 +35,9 @@ public class TSensor extends MagicEyesActivity implements View.OnClickListener {
     SharedPreferences mSp;
     boolean mCheckDataSuccess;
     private byte okFlag = 0x00;
+    private int[] valueFlag = new int[3];
+    private int errorCount = 3;
+    private boolean reportIsSaved;
 
     private final String TAG = "TSensor";
     public static final float Temp_Sensitivity = (float) 326.8; //LSB/ºC
@@ -65,9 +68,26 @@ public class TSensor extends MagicEyesActivity implements View.OnClickListener {
         handler.post(new Runnable() {
             @Override
             public void run() {
-                float TEMP_degC = (object.getPacketDataTemp() / Temp_Sensitivity) + RoomTemp_Offset;
+                int rawTemp = object.getPacketDataTemp();
+                float TEMP_degC = (rawTemp / Temp_Sensitivity) + RoomTemp_Offset;
                 tvdata.setText(String.format(Locale.US, "%.02f",TEMP_degC));
                 //Log.d(TAG, String.format("TEMP_degC = %.02f",TEMP_degC));
+                if (errorCount > 0) {
+                    errorCount--;
+                    if (valueFlag[errorCount] != rawTemp) {
+                        valueFlag[errorCount] = rawTemp;
+                    }
+                } else {
+                    if (valueFlag[0] == valueFlag[1] && valueFlag[1] == valueFlag[2]) {
+                        mCheckDataSuccess = false;
+                        tvdata.setTextColor(Color.RED);
+                        mBtFailed.setBackgroundColor(Color.RED);
+                        mBtOk.setBackgroundColor(Color.GRAY);
+                        SaveToReport();
+                        return;
+                    }
+                }
+
                 if (TEMP_degC < Temperature_Range_Min || TEMP_degC > Temperature_Range_Max) {
                     okFlag |= 0x80;
                 } else {
@@ -96,6 +116,7 @@ public class TSensor extends MagicEyesActivity implements View.OnClickListener {
         Temperature_Range_Max = MJDeviceTestApp.Temperature_Range_Max;
 
         mCheckDataSuccess = false;
+        reportIsSaved = false;
 
         handler.postDelayed(new Runnable() {
             @Override
@@ -113,7 +134,7 @@ public class TSensor extends MagicEyesActivity implements View.OnClickListener {
                 }
                 SaveToReport();
             }
-        }, 5 * 1000);
+        }, 10 * 1000);
 
         handler.postDelayed(new Runnable() {
             @Override
@@ -144,6 +165,9 @@ public class TSensor extends MagicEyesActivity implements View.OnClickListener {
     }
 
     public void SaveToReport() {
+        if (reportIsSaved) {
+            return;
+        }
         UtilTools.SetPreferences(this, mSp, R.string.tsensor_name,
                 mCheckDataSuccess ? AppDefine.DT_SUCCESS : AppDefine.DT_FAILED);
         handler.postDelayed(new Runnable() {

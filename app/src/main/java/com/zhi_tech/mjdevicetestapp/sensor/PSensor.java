@@ -39,6 +39,7 @@ public class PSensor extends MagicEyesActivity implements View.OnClickListener {
     private static int Proximity_Threshold_Leave = 200;
     private static int Proximity_Threshold_Approach = 820;
     boolean mCheckDataSuccess;
+    private boolean reportIsSaved;
 
     CountDownTimer mCountDownTimer;
     SharedPreferences mSp;
@@ -103,6 +104,7 @@ public class PSensor extends MagicEyesActivity implements View.OnClickListener {
         Proximity_Threshold_Approach = MJDeviceTestApp.Proximity_Threshold_Approach;
 
         mCheckDataSuccess = false;
+        reportIsSaved = false;
 
         handler.postDelayed(new Runnable() {
             @Override
@@ -145,6 +147,9 @@ public class PSensor extends MagicEyesActivity implements View.OnClickListener {
     }
 
     public void SaveToReport() {
+        if (reportIsSaved) {
+            return;
+        }
         UtilTools.SetPreferences(this, mSp, R.string.psensor_name,
                 mCheckDataSuccess ? AppDefine.DT_SUCCESS : AppDefine.DT_FAILED);
         handler.postDelayed(new Runnable() {
