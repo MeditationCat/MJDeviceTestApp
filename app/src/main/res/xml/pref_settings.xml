@@ -2,7 +2,7 @@
 
     <PreferenceCategory android:title="@string/pref_header_general_setting">
         <SwitchPreference
-            android:defaultValue="false"
+            android:defaultValue="true"
             android:key="factory_mode_switch"
             android:summary="@string/pref_description_mode"
             android:title="@string/pref_title_mode" />

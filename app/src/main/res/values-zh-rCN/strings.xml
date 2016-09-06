@@ -13,6 +13,7 @@
     <string name="device_write_sn_complete">序列号写入成功!</string>
     <string name="device_write_sn_failed">序列号写入失败!</string>
     <string name="device_serial_number">序列号</string>
+    <string name="device_hand_shake_status">握手状态</string>
     <string name="Packageerror">出错了,无法找到应用包！</string>
     <string name="PackageIerror">内部错误</string>
     <!-- GSensor -->

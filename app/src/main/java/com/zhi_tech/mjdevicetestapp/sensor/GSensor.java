@@ -25,6 +25,7 @@ import com.zhi_tech.mjdevicetestapp.MJDeviceTestApp;
 import com.zhi_tech.mjdevicetestapp.R;
 import com.zhi_tech.mjdevicetestapp.UtilTools;
 
+import java.util.Arrays;
 import java.util.Locale;
 
 /**
@@ -49,6 +50,9 @@ public class GSensor extends MagicEyesActivity implements View.OnClickListener {
     private final static float Gravity = (float) 9.8; // m/s²
     private static int FullScale_Range = 3; // g
     private byte okFlag = 0x00;
+    private int[] valueFlag = new int[3];
+    private int errorCount = 10;
+    private boolean reportIsSaved;
 
     private final String TAG = "GSensor";
 
@@ -69,21 +73,35 @@ public class GSensor extends MagicEyesActivity implements View.OnClickListener {
         @Override
         public void run() {
             tvdata.setText(String.format(Locale.US,"%s:%nX: %+f%nY: %+f%nZ: %+f%n",getString(R.string.GSensor), mX, mY, mZ));
-            if (Math.abs(mX) < FullScale_Range && Math.abs(mY) < FullScale_Range
-                    && Math.abs(Math.abs(mZ) - Gravity) < FullScale_Range) {
-                okFlag |= 0x01;
-                ivimg.setBackgroundResource(R.drawable.gsensor_z);
+            if (MJDeviceTestApp.IsFactoryMode) {
+                if (Math.abs(mX) < FullScale_Range && Math.abs(mY) < FullScale_Range
+                        && Math.abs(Math.abs(mZ) - Gravity) < FullScale_Range) {
+                    okFlag |= 0x01;
+                    ivimg.setBackgroundResource(R.drawable.gsensor_z);
+                }
+                if (Math.abs(mX) < FullScale_Range && Math.abs(mZ) < FullScale_Range
+                        && Math.abs(Math.abs(mY) - Gravity) < FullScale_Range) {
+                    okFlag |= 0x02;
+                    ivimg.setBackgroundResource(mY > 0 ? R.drawable.gsensor_y : R.drawable.gsensor_2y);
+                }
+                if (Math.abs(mZ) < FullScale_Range && Math.abs(mY) < FullScale_Range
+                        && Math.abs(Math.abs(mX) - Gravity) < FullScale_Range) {
+                    okFlag |= 0x04;
+                    ivimg.setBackgroundResource(mX > 0 ? R.drawable.gsensor_x : R.drawable.gsensor_x_2);
+                }
+            } else {
+                if (Math.abs(mX) > Math.abs(mY) && Math.abs(mX) - OFFSET > Math.abs(mZ)) {
+                    ivimg.setBackgroundResource(mX > 0? R.drawable.gsensor_x : R.drawable.gsensor_x_2);
+                    okFlag |= 0x01;
+                } else if (Math.abs(mY) - OFFSET > Math.abs(mX) && Math.abs(mY) - OFFSET > Math.abs(mZ)) {
+                    ivimg.setBackgroundResource(mY > 0? R.drawable.gsensor_y : R.drawable.gsensor_2y);
+                    okFlag |= 0x02;
+                } else if (Math.abs(mZ) > Math.abs(mX) && Math.abs(mZ) > Math.abs(mY)) {
+                    ivimg.setBackgroundResource(R.drawable.gsensor_z);
+                    okFlag |= 0x04;
+                }
             }
-            if (Math.abs(mX) < FullScale_Range && Math.abs(mZ) < FullScale_Range
-                    && Math.abs(Math.abs(mY) - Gravity) < FullScale_Range) {
-                okFlag |= 0x02;
-                ivimg.setBackgroundResource(mY > 0? R.drawable.gsensor_y : R.drawable.gsensor_2y);
-            }
-            if (Math.abs(mZ) < FullScale_Range && Math.abs(mY) < FullScale_Range
-                    && Math.abs(Math.abs(mX) - Gravity) < FullScale_Range) {
-                okFlag |= 0x04;
-                ivimg.setBackgroundResource(mX > 0? R.drawable.gsensor_x : R.drawable.gsensor_x_2);
-            }
+
             if (okFlag == 0x07 && !mCheckDataSuccess) {
                 tvdata.setTextColor(Color.GREEN);
                 mBtFailed.setBackgroundColor(Color.GRAY);
@@ -91,19 +109,29 @@ public class GSensor extends MagicEyesActivity implements View.OnClickListener {
                 mCheckDataSuccess = true;
                 SaveToReport();
             }
-            /*if (Math.abs(mX) > Math.abs(mY) && Math.abs(mX) - OFFSET > Math.abs(mZ)) {
-                ivimg.setBackgroundResource(mX > 0? R.drawable.gsensor_x : R.drawable.gsensor_x_2);
-            } else if (Math.abs(mY) - OFFSET > Math.abs(mX) && Math.abs(mY) - OFFSET > Math.abs(mZ)) {
-                ivimg.setBackgroundResource(mY > 0? R.drawable.gsensor_y : R.drawable.gsensor_2y);
-            } else if (Math.abs(mZ) > Math.abs(mX) && Math.abs(mZ) > Math.abs(mY)) {
-                ivimg.setBackgroundResource(R.drawable.gsensor_z);
-            }*/
         }
     };
 
     @Override
     protected void OnSensorDataChangedHandler(SensorPacketDataObject object) {
         int[] values = object.getPacketDataAccel();
+        if (!Arrays.equals(valueFlag, values)) {
+            System.arraycopy(values, 0, valueFlag, 0, valueFlag.length);
+        } else if (errorCount >= 0) {
+            if (errorCount == 0) {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mCheckDataSuccess = false;
+                        tvdata.setTextColor(Color.RED);
+                        mBtFailed.setBackgroundColor(Color.RED);
+                        mBtOk.setBackgroundColor(Color.GRAY);
+                        SaveToReport();
+                    }
+                });
+            }
+            errorCount--;
+        }
         mX = values[0] * Gravity / Accl_Sensitivity;
         mY = values[1] * Gravity / Accl_Sensitivity;
         mZ = values[2] * Gravity / Accl_Sensitivity;
@@ -132,6 +160,8 @@ public class GSensor extends MagicEyesActivity implements View.OnClickListener {
         mBtFailed.setClickable(false);
         FullScale_Range = MJDeviceTestApp.Accel_FullScale_Range;
 
+        mCheckDataSuccess = false;
+        reportIsSaved = false;
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -160,6 +190,9 @@ public class GSensor extends MagicEyesActivity implements View.OnClickListener {
     }
 
     public void SaveToReport() {
+        if (reportIsSaved) {
+            return;
+        }
         UtilTools.SetPreferences(this, mSp, R.string.gsensor_name,
                 mCheckDataSuccess ? AppDefine.DT_SUCCESS : AppDefine.DT_FAILED);
         handler.postDelayed(new Runnable() {

@@ -13,6 +13,7 @@
     <string name="device_write_sn_complete">Serial number has been written successfully!</string>
     <string name="device_write_sn_failed">Serial number failed to write!</string>
     <string name="device_serial_number">Serial Number</string>
+    <string name="device_hand_shake_status">Hand Shake Status</string>
     <string name="Packageerror">Error! Application package not found!</string>
     <string name="PackageIerror">Inner error</string>
     <!-- GSensor -->

@@ -23,6 +23,7 @@ import com.zhi_tech.mjdevicetestapp.MJDeviceTestApp;
 import com.zhi_tech.mjdevicetestapp.R;
 import com.zhi_tech.mjdevicetestapp.UtilTools;
 
+import java.util.Arrays;
 import java.util.Locale;
 
 /**
@@ -52,6 +53,9 @@ public class GyRoscopeSensor extends MagicEyesActivity implements View.OnClickLi
     private final String TAG = "GyRoscopeSensor";
     boolean mCheckDataSuccess;
     private byte okFlag = 0x00;
+    private int[] valueFlag = new int[3];
+    private int errorCount = 10;
+    private boolean reportIsSaved;
 
     @Override
     public void OnServiceConnectedHandler(ComponentName componentName, IBinder iBinder) {
@@ -96,6 +100,18 @@ public class GyRoscopeSensor extends MagicEyesActivity implements View.OnClickLi
                 timestamp = object.getPacketDataTimestamp();//*/
                 ///*
                 int[] values = object.getPacketDataGyro();
+                if (!Arrays.equals(valueFlag, values)) {
+                    System.arraycopy(values, 0, valueFlag, 0, valueFlag.length);
+                } else if (errorCount >= 0) {
+                    if (errorCount == 0) {
+                        mCheckDataSuccess = false;
+                        tvdata.setTextColor(Color.RED);
+                        mBtFailed.setBackgroundColor(Color.RED);
+                        mBtOk.setBackgroundColor(Color.GRAY);
+                        SaveToReport();
+                    }
+                    errorCount--;
+                }
                 angle[0] = (float) values[0] / Gyro_Sensitivity;
                 angle[1] = (float) values[1] / Gyro_Sensitivity;
                 angle[2] = (float) values[2] / Gyro_Sensitivity;
@@ -136,6 +152,7 @@ public class GyRoscopeSensor extends MagicEyesActivity implements View.OnClickLi
         }
 
         mCheckDataSuccess = false;
+        reportIsSaved = false;
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -152,7 +169,7 @@ public class GyRoscopeSensor extends MagicEyesActivity implements View.OnClickLi
                 }
                 SaveToReport();
             }
-        }, 5 * 1000);
+        }, 10 * 1000);
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -182,6 +199,9 @@ public class GyRoscopeSensor extends MagicEyesActivity implements View.OnClickLi
     }
 
     public void SaveToReport() {
+        if (reportIsSaved) {
+            return;
+        }
         UtilTools.SetPreferences(this, mSp, R.string.gyroscopesensor_name,
                 mCheckDataSuccess ? AppDefine.DT_SUCCESS : AppDefine.DT_FAILED);
         handler.postDelayed(new Runnable() {
