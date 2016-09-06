@@ -90,7 +90,7 @@ public class SensorPacketDataObject implements Parcelable {
         offset = 14;
         for (int i = 0; i < packetDataMSensor.length; i++) {
             packetDataMSensor[i] =
-                    (short) ((dataBuffer[offset + i * 2] & 0xFF) << 8 | (dataBuffer[offset + i * 2 + 1] & 0xFF));
+                    (short) ((dataBuffer[offset + i * 2] & 0xFF) | (dataBuffer[offset + i * 2 + 1] & 0xFF) << 8);
         }
         //packet data: temperature: short
         offset = 20;
